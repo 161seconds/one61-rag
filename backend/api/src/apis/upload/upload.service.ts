@@ -25,12 +25,12 @@ function normalizeFolder(folder: string | undefined): string {
 function sanitizeFileName(fileName: string): string {
 	const base = fileName.trim();
 	const last = base.split(/[/\\]/).pop() ?? "file";
-	const safe = last.replace(/[^\w.\-]+/g, "_");
+	const safe = last.replace(/[^\w.-]+/g, "_");
 	return safe === "" ? "file" : safe;
 }
 
 function sanitizePathSegment(value: string): string {
-	const safe = value.trim().replace(/[^\w.\-]+/g, "_");
+	const safe = value.trim().replace(/[^\w.-]+/g, "_");
 	return safe === "" ? "unknown" : safe;
 }
 

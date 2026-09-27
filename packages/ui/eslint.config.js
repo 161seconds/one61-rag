@@ -29,7 +29,7 @@ export default defineConfig([
       },
     },
     rules: {
-      "eslint/react-refresh/only-export-components": "off",
+      "react-refresh/only-export-components": "off",
     },
   },
 ])

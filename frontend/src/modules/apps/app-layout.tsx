@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@aqua-calendar/ui/lib/utils";
 import { AppSidebar } from "@/modules/apps/sidebar/app-sidebar";
 import { AppHeader } from "@/modules/apps/app-header";
@@ -27,7 +27,7 @@ export function AppLayout({ children, pageKey }: AppLayoutProps) {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: intentional route-reset
 	useEffect(() => {
 		closeMobile();
-	}, [pageKey]);
+	}, [pageKey, closeMobile]);
 
 	/* ── Close mobile drawer on resize to desktop ── */
 	useEffect(() => {
@@ -48,6 +48,7 @@ export function AppLayout({ children, pageKey }: AppLayoutProps) {
 
 	/* ── Sidebar resize drag ── */
 	const isResizingRef = useRef(false);
+	const [isResizing, setIsResizing] = useState(false);
 	const startXRef = useRef(0);
 	const startWidthRef = useRef(sidebarWidth);
 
@@ -55,6 +56,7 @@ export function AppLayout({ children, pageKey }: AppLayoutProps) {
 		(e: React.MouseEvent) => {
 			if (isCollapsed) return;
 			isResizingRef.current = true;
+			setIsResizing(true);
 			startXRef.current = e.clientX;
 			startWidthRef.current = sidebarWidth;
 			document.body.style.cursor = "col-resize";
@@ -66,6 +68,7 @@ export function AppLayout({ children, pageKey }: AppLayoutProps) {
 			};
 			const onUp = () => {
 				isResizingRef.current = false;
+				setIsResizing(false);
 				document.body.style.cursor = "";
 				document.body.style.userSelect = "";
 				document.removeEventListener("mousemove", onMove);
@@ -89,7 +92,7 @@ export function AppLayout({ children, pageKey }: AppLayoutProps) {
 					"bg-background overflow-hidden",
 					isCollapsed && "border-r border-border/60",
 					/* Only animate during collapse/expand toggle, not while resizing */
-					!isResizingRef.current &&
+					!isResizing &&
 						"transition-[width] duration-250 ease-in-out",
 				)}
 			>

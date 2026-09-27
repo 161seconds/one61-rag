@@ -330,7 +330,7 @@ export class ConversationService {
     if (author === MessageAuthor.user) {
       const lastMessage = conversation.messages[conversation.messages.length - 1]
       if (lastMessage) {
-        this.enqueueForAi({
+        void this.enqueueForAi({
           conversationId,
           userId,
           messageId: lastMessage.id,
@@ -381,18 +381,25 @@ export class ConversationService {
     const mockText = "Xìn chào! tôi có thể giúp gì cho bạn?"
     const tokens = mockText.split(" ")
 
-    setTimeout(async () => {
-      for (let i = 0; i < tokens.length; i++) {
-        const text = (i === 0 ? "" : " ") + tokens[i]
-        this.sseService.emit(userId, conversationId, "ai:token", { text })
-        await new Promise((r) => setTimeout(r, 50))
-      }
+    setTimeout(() => {
+      void (async () => {
+        for (let i = 0; i < tokens.length; i++) {
+          const text = (i === 0 ? "" : " ") + tokens[i]
+          this.sseService.emit(userId, conversationId, "ai:token", { text })
+          await new Promise((r) => setTimeout(r, 50))
+        }
 
-      await this.receiveAiResponse({
-        conversationId,
-        userId,
-        content: { contentType: ContentType.text, text: mockText },
-      })
+        await this.receiveAiResponse({
+          conversationId,
+          userId,
+          content: { contentType: ContentType.text, text: mockText },
+        })
+      })().catch((error) =>
+        this.logger.error(
+          `Failed to send mock AI response: ${conversationId}`,
+          error instanceof Error ? error.stack : error
+        )
+      )
     }, 500)
   }
 
