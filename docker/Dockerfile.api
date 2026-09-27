@@ -1,0 +1,40 @@
+# syntax=docker/dockerfile:1
+
+FROM node:20-bookworm-slim AS base
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+RUN corepack enable && corepack prepare pnpm@9.0.6 --activate
+WORKDIR /app
+
+FROM base AS pruner
+COPY . .
+RUN --mount=type=cache,id=pnpm-dlx,target=/root/.local/share/pnpm/store \
+  pnpm dlx turbo@2.8.8 prune @aqua-calendar/apis --docker
+
+FROM base AS build
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+RUN --mount=type=cache,id=pnpm-api,target=/root/.local/share/pnpm/store \
+  pnpm install --frozen-lockfile
+COPY --from=pruner /app/out/full/ .
+ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres"
+ENV NODE_ENV=production
+RUN --mount=type=cache,id=pnpm-api,target=/root/.local/share/pnpm/store \
+  --mount=type=cache,id=turbo-api,target=/app/.turbo \
+  pnpm exec turbo run build --filter=@aqua-calendar/apis...
+
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+RUN groupadd --gid 1001 nodejs \
+  && useradd --uid 1001 --gid nodejs --shell /bin/bash --create-home nestjs
+COPY --from=build --chown=nestjs:nodejs /app/package.json ./package.json
+COPY --from=build --chown=nestjs:nodejs /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=build --chown=nestjs:nodejs /app/node_modules ./node_modules
+COPY --from=build --chown=nestjs:nodejs /app/backend/api ./backend/api
+COPY --from=build --chown=nestjs:nodejs /app/packages ./packages
+USER nestjs
+WORKDIR /app/backend/api
+EXPOSE 3002
+CMD ["node", "dist/main.js"]

@@ -1,0 +1,98 @@
+# Production CI workflow: lint, test, build, and upload artifacts.
+# Runs on push and pull_request with concurrency and Node version matrix.
+
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: true
+  NODE_OPTIONS: "--max-old-space-size=4096"
+
+jobs:
+  build-and-test:
+    name: Lint, Test & Build (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        node-version: ["20", "22"]
+
+    steps:
+      # -----------------------------------------------------------------------
+      # Checkout
+      # -----------------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # -----------------------------------------------------------------------
+      # Runtime & package manager
+      # -----------------------------------------------------------------------
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
+
+      # -----------------------------------------------------------------------
+      # Dependency cache (Turbo + pnpm store via setup-node)
+      # -----------------------------------------------------------------------
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
+
+      # -----------------------------------------------------------------------
+      # Install dependencies
+      # -----------------------------------------------------------------------
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # -----------------------------------------------------------------------
+      # Lint
+      # -----------------------------------------------------------------------
+      - name: Run lint
+        run: pnpm run lint
+
+      # -----------------------------------------------------------------------
+      # Unit tests (apis workspace only has test script)
+      # -----------------------------------------------------------------------
+      - name: Run unit tests
+        run: pnpm --filter apis test
+
+      # -----------------------------------------------------------------------
+      # Build
+      # -----------------------------------------------------------------------
+      - name: Build
+        run: pnpm run build
+
+      # -----------------------------------------------------------------------
+      # Upload build artifacts
+      # -----------------------------------------------------------------------
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.node-version }}
+          path: |
+            apps/apis/dist
+            apps/web/dist
+          retention-days: 7
+          if-no-files-found: ignore

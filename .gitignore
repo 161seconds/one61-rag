@@ -1,0 +1,38 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Testing
+coverage
+
+# Turbo
+.turbo
+.tanstack
+
+# Vercel
+.vercel
+
+# Build Outputs
+dist
+
+# Debug
+npm-debug.log*
+
+# Misc
+.DS_Store
+*.pem
+
+skills-lock.json
+.agents/**
+
+routeTree.gen.ts
+
+aqua-calendar-service-account.json

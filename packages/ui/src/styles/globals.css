@@ -1,0 +1,335 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+@source "../../../../frontend/**/*.{ts,tsx}";
+@source "../../../components/**/*.{ts,tsx}";
+@source "../../../**/*.{ts,tsx}";
+
+/* ─────────────────────────────────────────────────────────
+   COLOR SYSTEM  (all values in OKLCH for perceptual uniformity)
+
+   Naming convention:
+     --background         Page / content canvas
+     --foreground         Primary text on canvas
+     --card               Elevated surface (modal, sheet, card)
+     --popover            Floating overlay (dropdown, tooltip bg)
+     --primary            Brand / action colour
+     --secondary          Subtle interactive surface
+     --muted              Non-interactive subdued surface
+     --accent             Hover / selection highlight
+     --destructive        Danger / error states
+     --border             Default divider / input border
+     --input              Form input border (same as border by default)
+     --ring               Focus ring
+     --sidebar            App sidebar background
+     --chat-input         Chat input box — intentionally ≠ background
+     --chart-*            Data visualisation palette (1–5)
+───────────────────────────────────────────────────────── */
+
+/* ── Light mode ───────────────────────────────────────── */
+:root {
+  /* Canvas */
+  --background:              oklch(1.0000 0 0);
+  --foreground:              oklch(0.3289 0.0107 91.6587);
+
+  /* Elevated surfaces */
+  --card:                    oklch(1.0000 0 0);
+  --card-foreground:         oklch(0.3289 0.0107 91.6587);
+  --popover:                 oklch(1.0000 0 0);
+  --popover-foreground:      oklch(0.3289 0.0107 91.6587);
+
+  /* Brand */
+  --primary:                 oklch(0.6068 0.2124 264.3906);
+  --primary-foreground:      oklch(1.0000 0 0);
+
+  /* Subtle surfaces */
+  --secondary:               oklch(0.9576 0.0027 106.4494);
+  --secondary-foreground:    oklch(0.3289 0.0107 91.6587);
+  --muted:                   oklch(0.9756 0.0026 106.4483);
+  --muted-foreground:        oklch(0.5692 0.0047 91.4807);
+  --accent:                  oklch(0.9576 0.0027 106.4494);
+  --accent-foreground:       oklch(0.3289 0.0107 91.6587);
+
+  /* Danger */
+  --destructive:             oklch(0.6534 0.1835 23.6794);
+  --destructive-foreground:  oklch(1.0000 0 0);
+
+  /* Borders & rings */
+  --border:                  oklch(0.9335 0.0027 106.4510);
+  --input:                   oklch(0.9335 0.0027 106.4510);
+  --ring:                    oklch(0.6068 0.2124 264.3906);
+
+  /* Sidebar */
+  --sidebar:                 oklch(0.9756 0.0026 106.4483);
+  --sidebar-foreground:      oklch(0.3289 0.0107 91.6587);
+  --sidebar-primary:         oklch(0.6068 0.2124 264.3906);
+  --sidebar-primary-foreground: oklch(1.0000 0 0);
+  --sidebar-accent:          oklch(0.9521 0 0);
+  --sidebar-accent-foreground: oklch(0.3289 0.0107 91.6587);
+  --sidebar-border:          oklch(0.9430 0.0042 91.4477);
+  --sidebar-ring:            oklch(0.6068 0.2124 264.3906);
+
+  /* Chat — slightly warmer than white so the input pops off the canvas */
+  --chat-input:              oklch(0.9756 0.0026 106.4483);
+
+  /* Data viz */
+  --chart-1:                 oklch(0.6068 0.2124 264.3906);
+  --chart-2:                 oklch(0.6448 0.1488 158.7777);
+  --chart-3:                 oklch(0.8034 0.1704 73.7877);
+  --chart-4:                 oklch(0.6790 0.2114 34.0198);
+  --chart-5:                 oklch(0.5197 0.1626 286.5038);
+
+  /* Typography */
+  --font-sans:  Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: Lyon-Text, Georgia, serif;
+  --font-mono:  SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Shape */
+  --radius: 0.375rem;
+
+  /* Shadows (light — very subtle) */
+  --shadow-color:    #000000;
+  --shadow-opacity:  0.05;
+  --shadow-2xs: 0px 2px 10px 0px hsl(0 0% 0% / 0.03);
+  --shadow-xs:  0px 2px 10px 0px hsl(0 0% 0% / 0.03);
+  --shadow-sm:  0px 2px 10px 0px hsl(0 0% 0% / 0.05), 0px 1px 2px -1px hsl(0 0% 0% / 0.05);
+  --shadow:     0px 2px 10px 0px hsl(0 0% 0% / 0.05), 0px 1px 2px -1px hsl(0 0% 0% / 0.05);
+  --shadow-md:  0px 2px 10px 0px hsl(0 0% 0% / 0.05), 0px 2px 4px -1px hsl(0 0% 0% / 0.05);
+  --shadow-lg:  0px 2px 10px 0px hsl(0 0% 0% / 0.05), 0px 4px 6px -1px hsl(0 0% 0% / 0.05);
+  --shadow-xl:  0px 2px 10px 0px hsl(0 0% 0% / 0.05), 0px 8px 10px -1px hsl(0 0% 0% / 0.05);
+  --shadow-2xl: 0px 2px 10px 0px hsl(0 0% 0% / 0.13);
+
+  /* Letter spacing */
+  --tracking-normal: -0.01em;
+}
+
+/* ── Dark mode ────────────────────────────────────────── */
+.dark {
+  /* Canvas — darkest layer */
+  --background:              oklch(0.2134 0 0);
+  --foreground:              oklch(1.0000 0 0);
+
+  /* Elevated surfaces — step up from background */
+  --card:                    oklch(0.2435 0 0);
+  --card-foreground:         oklch(1.0000 0 0);
+  --popover:                 oklch(0.2645 0 0);
+  --popover-foreground:      oklch(1.0000 0 0);
+
+  /* Brand (unchanged across modes) */
+  --primary:                 oklch(0.6068 0.2124 264.3906);
+  --primary-foreground:      oklch(1.0000 0 0);
+
+  /* Subtle surfaces */
+  --secondary:               oklch(0.3052 0 0);
+  --secondary-foreground:    oklch(1.0000 0 0);
+  --muted:                   oklch(0.2645 0 0);
+  --muted-foreground:        oklch(0.6895 0 0);
+  --accent:                  oklch(0.3052 0 0);
+  --accent-foreground:       oklch(1.0000 0 0);
+
+  /* Danger */
+  --destructive:             oklch(0.6786 0.2095 24.6583);
+  --destructive-foreground:  oklch(1.0000 0 0);
+
+  /* Borders & rings */
+  --border:                  oklch(0.3052 0 0);
+  --input:                   oklch(0.3052 0 0);
+  --ring:                    oklch(0.6068 0.2124 264.3906);
+
+  /* Sidebar — slightly lighter than canvas */
+  --sidebar:                 oklch(0.2393 0 0);
+  --sidebar-foreground:      oklch(1.0000 0 0);
+  --sidebar-primary:         oklch(0.6068 0.2124 264.3906);
+  --sidebar-primary-foreground: oklch(1.0000 0 0);
+  --sidebar-accent:          oklch(0.3052 0 0);
+  --sidebar-accent-foreground: oklch(1.0000 0 0);
+  --sidebar-border:          oklch(0.3052 0 0);
+  --sidebar-ring:            oklch(0.6068 0.2124 264.3906);
+
+  /* Chat — elevated card level so input lifts off the dark canvas */
+  --chat-input:              oklch(0.2645 0 0);
+
+  /* Data viz */
+  --chart-1:                 oklch(0.6068 0.2124 264.3906);
+  --chart-2:                 oklch(0.6537 0.1274 162.6531);
+  --chart-3:                 oklch(0.8072 0.1689 74.4385);
+  --chart-4:                 oklch(0.6052 0.1990 25.4296);
+  --chart-5:                 oklch(0.5814 0.1203 309.4956);
+
+  /* Shadows (dark — stronger to compensate low contrast) */
+  --shadow-color:    #000000;
+  --shadow-opacity:  0.30;
+  --shadow-2xs: 0px 4px 15px 0px hsl(0 0% 0% / 0.15);
+  --shadow-xs:  0px 4px 15px 0px hsl(0 0% 0% / 0.15);
+  --shadow-sm:  0px 4px 15px 0px hsl(0 0% 0% / 0.30), 0px 1px 2px -1px hsl(0 0% 0% / 0.30);
+  --shadow:     0px 4px 15px 0px hsl(0 0% 0% / 0.30), 0px 1px 2px -1px hsl(0 0% 0% / 0.30);
+  --shadow-md:  0px 4px 15px 0px hsl(0 0% 0% / 0.30), 0px 2px 4px -1px hsl(0 0% 0% / 0.30);
+  --shadow-lg:  0px 4px 15px 0px hsl(0 0% 0% / 0.30), 0px 4px 6px -1px hsl(0 0% 0% / 0.30);
+  --shadow-xl:  0px 4px 15px 0px hsl(0 0% 0% / 0.30), 0px 8px 10px -1px hsl(0 0% 0% / 0.30);
+  --shadow-2xl: 0px 4px 15px 0px hsl(0 0% 0% / 0.75);
+}
+
+/* ─────────────────────────────────────────────────────────
+   TAILWIND THEME MAPPING
+   Maps CSS variables → Tailwind colour utilities.
+   Add new tokens here whenever you add to :root / .dark above.
+───────────────────────────────────────────────────────── */
+@theme inline {
+  /* Core surfaces */
+  --color-background:               var(--background);
+  --color-foreground:               var(--foreground);
+  --color-card:                     var(--card);
+  --color-card-foreground:          var(--card-foreground);
+  --color-popover:                  var(--popover);
+  --color-popover-foreground:       var(--popover-foreground);
+
+  /* Brand */
+  --color-primary:                  var(--primary);
+  --color-primary-foreground:       var(--primary-foreground);
+
+  /* Subtle surfaces */
+  --color-secondary:                var(--secondary);
+  --color-secondary-foreground:     var(--secondary-foreground);
+  --color-muted:                    var(--muted);
+  --color-muted-foreground:         var(--muted-foreground);
+  --color-accent:                   var(--accent);
+  --color-accent-foreground:        var(--accent-foreground);
+
+  /* Danger */
+  --color-destructive:              var(--destructive);
+  --color-destructive-foreground:   var(--destructive-foreground);
+
+  /* Borders & rings */
+  --color-border:                   var(--border);
+  --color-input:                    var(--input);
+  --color-ring:                     var(--ring);
+
+  /* Sidebar */
+  --color-sidebar:                  var(--sidebar);
+  --color-sidebar-foreground:       var(--sidebar-foreground);
+  --color-sidebar-primary:          var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent:           var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border:           var(--sidebar-border);
+  --color-sidebar-ring:             var(--sidebar-ring);
+
+  /* Chat */
+  --color-chat-input:               var(--chat-input);
+
+  /* Data viz */
+  --color-chart-1:                  var(--chart-1);
+  --color-chart-2:                  var(--chart-2);
+  --color-chart-3:                  var(--chart-3);
+  --color-chart-4:                  var(--chart-4);
+  --color-chart-5:                  var(--chart-5);
+
+  /* Typography */
+  --font-sans:   var(--font-sans);
+  --font-mono:   var(--font-mono);
+  --font-serif:  var(--font-serif);
+
+  /* Shape */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Shadows */
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs:  var(--shadow-xs);
+  --shadow-sm:  var(--shadow-sm);
+  --shadow:     var(--shadow);
+  --shadow-md:  var(--shadow-md);
+  --shadow-lg:  var(--shadow-lg);
+  --shadow-xl:  var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+
+  /* Letter spacing */
+  --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
+  --tracking-tight:   calc(var(--tracking-normal) - 0.025em);
+  --tracking-normal:  var(--tracking-normal);
+  --tracking-wide:    calc(var(--tracking-normal) + 0.025em);
+  --tracking-wider:   calc(var(--tracking-normal) + 0.05em);
+  --tracking-widest:  calc(var(--tracking-normal) + 0.1em);
+}
+
+/* ─────────────────────────────────────────────────────────
+   BASE STYLES
+───────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    /* 14px base — scales all rem units down uniformly */
+    font-size: 87.5%;
+  }
+
+  html, body {
+    @apply bg-background text-foreground;
+    min-height: 100svh;
+    overscroll-behavior: none;
+    letter-spacing: var(--tracking-normal);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
+   ANIMATIONS
+───────────────────────────────────────────────────────── */
+
+/* Page transition — opacity only, no translateY to avoid layout jumps */
+@keyframes page-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.page-enter {
+  animation: page-fade-in 0.15s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter { animation: none; }
+}
+
+/* Route loading progress bar */
+@keyframes route-progress {
+  0%   { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ─────────────────────────────────────────────────────────
+   COMPONENT HELPERS
+───────────────────────────────────────────────────────── */
+
+/* Landing page glassmorphism */
+.glass-card {
+  background: oklch(1 0 0 / 70%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid oklch(1 0 0 / 30%);
+}
+
+.dark .glass-card {
+  background: oklch(0.2 0 0 / 60%);
+  border: 1px solid oklch(1 0 0 / 10%);
+}
+
+/* Background blob animation (Aurora / landing hero) */
+@keyframes blob-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(30px, -50px) scale(1.1); }
+  66%       { transform: translate(-20px, 20px) scale(0.9); }
+}
+
+.landing-blob {
+  animation: blob-float 20s ease-in-out infinite;
+  will-change: transform;
+}

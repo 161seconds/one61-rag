@@ -1,0 +1,51 @@
+# Application images (web + API). Use with the infra stack:
+#   docker compose -f docker-compose.yml -f docker-compose.apps.yml up -d --build
+#
+# Set VITE_API_BASE_URL at build time to the browser-reachable API URL (e.g. http://localhost:3002).
+# Run Prisma migrations before or beside the API (e.g. pnpm --filter @aqua-calendar/database exec prisma migrate deploy).
+
+services:
+  aqua-calendar-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      REDIS_BULLMQ_HOST: aqua-calendar-redis-bullmq
+      REDIS_BULLMQ_PORT: "6379"
+      REDIS_CACHE_HOST: aqua-calendar-redis-cache
+      REDIS_CACHE_PORT: "6379"
+      REDIS_PUB_SUB_HOST: aqua-calendar-redis-pubsub
+      REDIS_PUB_SUB_PORT: "6379"
+    ports:
+      - "${APIS_PUBLISH_PORT:-3002}:${APIS_PORT:-3002}"
+    networks:
+      - aqua-calendar-network
+    depends_on:
+      aqua-calendar-postgres:
+        condition: service_healthy
+      aqua-calendar-redis-cache:
+        condition: service_healthy
+      aqua-calendar-redis-bullmq:
+        condition: service_healthy
+      aqua-calendar-redis-pubsub:
+        condition: service_healthy
+
+  aqua-calendar-web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3002}
+        VITE_FIREBASE_VAPID_KEY: ${VITE_FIREBASE_VAPID_KEY:-}
+        VITE_DEV: "false"
+    restart: unless-stopped
+    ports:
+      - "${WEB_PUBLISH_PORT:-8080}:80"
+    networks:
+      - aqua-calendar-network
+    depends_on:
+      - aqua-calendar-api

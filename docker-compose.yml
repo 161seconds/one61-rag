@@ -1,0 +1,122 @@
+services:
+  aqua-calendar-postgres:
+    image: postgres:16-alpine
+    container_name: aqua-calendar-postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - aqua-calendar-postgres-data:/var/lib/postgresql/data
+    networks:
+      - aqua-calendar-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  aqua-calendar-redis-cache:
+    image: redis:7-alpine
+    container_name: aqua-calendar-redis-cache
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${REDIS_CACHE_PORT:-6379}:6379"
+    volumes:
+      - aqua-calendar-redis-cache-data:/data
+    networks:
+      - aqua-calendar-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "redis-cli",
+          "--no-auth-warning",
+          "-a",
+          "${REDIS_CACHE_PASS:-password}",
+          "ping",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: >
+      sh -c "redis-server
+      --appendonly yes
+      --requirepass $${REDIS_CACHE_PASS:-password}"
+
+  aqua-calendar-redis-bullmq:
+    image: redis:7-alpine
+    container_name: aqua-calendar-redis-bullmq
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${REDIS_BULLMQ_PORT:-6380}:6379"
+    volumes:
+      - aqua-calendar-redis-bullmq-data:/data
+    networks:
+      - aqua-calendar-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "redis-cli",
+          "--no-auth-warning",
+          "-a",
+          "${REDIS_BULLMQ_PASS:-password}",
+          "ping",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: >
+      sh -c "redis-server
+      --appendonly yes
+      --requirepass $${REDIS_BULLMQ_PASS:-password}"
+
+  aqua-calendar-redis-pubsub:
+    image: redis:7-alpine
+    container_name: aqua-calendar-redis-pubsub
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${REDIS_PUB_SUB_PORT:-6381}:6379"
+    volumes:
+      - aqua-calendar-redis-pubsub-data:/data
+    networks:
+      - aqua-calendar-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "redis-cli",
+          "--no-auth-warning",
+          "-a",
+          "${REDIS_PUB_SUB_PASS:-password}",
+          "ping",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: >
+      sh -c "redis-server
+      --appendonly yes
+      --requirepass $${REDIS_PUB_SUB_PASS:-password}"
+
+volumes:
+  aqua-calendar-postgres-data:
+    driver: local
+  aqua-calendar-redis-cache-data:
+    driver: local
+  aqua-calendar-redis-bullmq-data:
+    driver: local
+  aqua-calendar-redis-pubsub-data:
+    driver: local
+
+networks:
+  aqua-calendar-network:
+    driver: bridge
