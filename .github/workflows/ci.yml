@@ -66,6 +66,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build database package
+        run: pnpm --filter @aqua-calendar/database build
+
       # -----------------------------------------------------------------------
       # Lint
       # -----------------------------------------------------------------------
@@ -76,7 +79,7 @@ jobs:
       # Unit tests (apis workspace only has test script)
       # -----------------------------------------------------------------------
       - name: Run unit tests
-        run: pnpm --filter apis test
+        run: pnpm --filter @aqua-calendar/apis test
 
       # -----------------------------------------------------------------------
       # Build
@@ -92,7 +95,7 @@ jobs:
         with:
           name: dist-${{ matrix.node-version }}
           path: |
-            apps/apis/dist
-            apps/web/dist
+            backend/api/dist
+            frontend/dist
           retention-days: 7
           if-no-files-found: ignore
