@@ -1,5 +1,0 @@
-export * from "./ioredis.module"
-export * from "./ioredis.providers"
-export * from "./ioredis.type"
-export * from "./ioredis.enum"
-export * from "./ioredis.constant"

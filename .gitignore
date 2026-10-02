@@ -1,38 +1,54 @@
-# Dependencies
-node_modules
-.pnp
-.pnp.js
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
 
-# Local env files
+.venv/
+.cache/
+venv/
+env/
+
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
-# Testing
-coverage
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# Turbo
-.turbo
-.tanstack
+data/lightrag_storage/
+data/raw/
+data/processed/
+*.db
 
-# Vercel
-.vercel
+docker-compose.override.yml
 
-# Build Outputs
-dist
-
-# Debug
-npm-debug.log*
-
-# Misc
 .DS_Store
-*.pem
+Thumbs.db
 
-skills-lock.json
-.agents/**
+.coverage
+htmlcov/
+.pytest_cache/
+tests/
 
-routeTree.gen.ts
+*.log
+logs/
 
-aqua-calendar-service-account.json
+README.md
+*.txt
+idea.txt
+response.json
+
+.agent/
+.gemini/
+aqua-calendar/
+
+k8s
+
+/WAREHOUSE
+
+/SEAL SP2026 FOR STUDENTS
+node_modules
