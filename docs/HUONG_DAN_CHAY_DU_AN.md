@@ -120,6 +120,13 @@ Imported packing_slips: 500 rows
 Warehouse data import finished successfully!
 ```
 
+### Bước 4b: Nạp tài liệu Pháp lý Vận chuyển Ngựa (Pegaxus) vào RAG *(Tùy chọn)*
+
+Thư mục `pegaxus-document/` lưu trữ bộ tài liệu chuyên sâu về **Pháp lý, Hải quan và Phúc lợi vận chuyển động vật sống xuyên biên giới (EU/UK)**. Để nạp các tài liệu này vào đồ thị tri thức RAG:
+```powershell
+uv run python -m scripts.ingest_pegaxus
+```
+
 ---
 
 ## Bước 5: Khởi chạy RAG Service

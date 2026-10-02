@@ -106,8 +106,12 @@ one61-rag/
 ├── data/                         # Dữ liệu tài liệu & extracted JSONs
 │   ├── extracted/                # Dữ liệu vận đơn, giao hàng, tờ khai, hàng hỏng
 │   └── lightrag_storage/         # Bộ nhớ cục bộ đồ thị tri thức LightRAG
+├── pegaxus-document/             # Kho tài liệu Pháp lý, Hải quan & Kiểm dịch vận chuyển ngựa (EU/UK specs, AHL, BCP, EC 1/2005)
+│   ├── legal_framework/          # Quy chuẩn pháp lý Châu Âu/Anh, ma trận chứng từ theo cặp quốc gia
+│   └── compliance_and_sop/       # Quy trình SOP kiểm soát phúc lợi, trạm dừng, nghiệm thu và xử lý sự cố biên giới
 ├── scripts/                      # Bộ scripts hỗ trợ
 │   ├── import_warehouse_to_postgres.py # Nạp 55.000+ dòng dữ liệu vào database one61_rag
+│   ├── ingest_pegaxus.py         # Nạp tài liệu vận chuyển ngựa Pegaxus vào LightRAG
 │   ├── sql/warehouse_schema.sql  # DDL khởi tạo 8 bảng và 3 views tối ưu
 │   └── preprocess/               # Scripts tiền xử lý OCR, trích xuất PDF/CSV
 ├── docs/                         # Tài liệu dự án
