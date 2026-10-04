@@ -1,5 +1,6 @@
 @import "tailwindcss";
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *, [data-theme=doom], [data-theme=doom] *));
+@custom-variant doom (&:where([data-theme=doom], [data-theme=doom] *));
 @custom-variant compact (@media (min-width: 761px) and (max-height: 850px));
 @custom-variant tablet (@media (min-width: 761px) and (max-width: 1100px));
 @custom-variant short-phone (@media (max-width: 760px) and (max-height: 750px));
