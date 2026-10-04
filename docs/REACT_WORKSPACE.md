@@ -1,10 +1,13 @@
 # One61 React Workspace
 
-Giao diện React lấy cảm hứng từ macOS: sidebar kính mờ, cửa sổ và dock,
-chế độ sáng/tối, bố cục thích ứng với điện thoại.
+Giao diện React + Tailwind CSS 4 lấy cảm hứng từ macOS: khung toàn màn hình,
+sidebar, chế độ sáng/tối, bố cục thích ứng với điện thoại. Không có dock hay wallpaper.
 
 Dùng pnpm 11.8.0, ghim trong `packageManager`. Chỉ cho phép script cài đặt
 của `esbuild` qua `pnpm-workspace.yaml`.
+
+Styles nằm trong utility classes của JSX. `src/tailwind.css` chỉ chứa import
+Tailwind và cấu hình variants; không có CSS component viết tay.
 
 ## Chạy phát triển
 

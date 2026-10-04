@@ -30,6 +30,6 @@ const paths = {
   stop: <rect x="6" y="6" width="12" height="12" rx="2"/>,
 };
 
-export default function Icon({ name, size = 20, ...props }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>{paths[name] || paths.chat}</svg>;
+export default function Icon({ name, size = 20, className = '', ...props }) {
+  return <svg className={`inline-block shrink-0 align-middle ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>{paths[name] || paths.chat}</svg>;
 }
