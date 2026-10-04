@@ -6,10 +6,12 @@ Multi-agent pipeline: Guard -> Router -> RAG -> Verification.
 import logging
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from src.agents.pipeline import AgentPipeline
 from src.cache.redis_client import close_redis, init_redis
@@ -129,6 +131,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+frontend_dist = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+app.mount("/ui", StaticFiles(directory=str(frontend_dist), check_dir=False), name="workspace")
 
 
 @app.get("/health")
@@ -372,8 +377,9 @@ async def test_list_documents(conversation_id: str):
 
 @app.get("/demo")
 async def demo_page():
-    import os
-    html_path = os.path.join(os.path.dirname(__file__), "static", "demo.html")
+    html_path = frontend_dist / "index.html"
+    if not html_path.is_file():
+        html_path = Path(__file__).resolve().parent / "static" / "demo.html"
     return FileResponse(html_path, media_type="text/html")
 
 

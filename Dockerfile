@@ -1,3 +1,12 @@
+# ---- React workspace ----
+FROM node:22-alpine AS frontend
+WORKDIR /frontend
+RUN corepack enable
+COPY frontend/package.json frontend/pnpm-lock.yaml frontend/pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
+COPY frontend/ ./
+RUN pnpm run build
+
 # ---- Stage 1: Build ----
 FROM python:3.11-slim AS builder
 
@@ -30,6 +39,7 @@ COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/pytho
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 COPY . .
+COPY --from=frontend /frontend/dist ./frontend/dist
 
 RUN mkdir -p data/lightrag_storage data/raw data/processed \
     && chown -R appuser:appuser /app
