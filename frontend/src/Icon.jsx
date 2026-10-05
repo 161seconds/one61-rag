@@ -1,6 +1,7 @@
+import doomMask from './dr-doom-mask.svg';
+
 const paths = {
   palette: <><path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1.5-3.3 1.5 1.5 0 0 1 1.1-2.5H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3Z"/><path d="M7 10h.01M10 6.5h.01M15 7h.01M17.5 10.5h.01"/></>,
-  doom: <><path d="m12 2 8 5-2 12-6 3-6-3L4 7Z"/><path d="m4 7 5-2h6l5 2M6 10l4 1M18 10l-4 1M12 10l-1 5h2M8 17h8M10 17v3M14 17v3"/></>,
   layers: <><path d="m12 3 9 5-9 5-9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></>,
   chat: <path d="M21 11.5a8.4 8.4 0 0 1-9 8.5 9 9 0 0 1-4-.9L3 21l1.8-5a9 9 0 0 1-.8-4.5 8.5 8.5 0 0 1 17 0Z"/>,
   plus: <path d="M12 5v14M5 12h14"/>,
@@ -33,5 +34,6 @@ const paths = {
 };
 
 export default function Icon({ name, size = 20, className = '', ...props }) {
+  if (name === 'doom') return <img src={doomMask} alt="" className={`inline-block shrink-0 align-middle object-contain ${className}`} width={size} height={size} aria-hidden="true" {...props} />;
   return <svg className={`inline-block shrink-0 align-middle ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>{paths[name] || paths.chat}</svg>;
 }
