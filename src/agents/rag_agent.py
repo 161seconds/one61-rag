@@ -175,7 +175,7 @@ class RAGAgent(BaseAgent):
                 temperature=0.4,
                 max_tokens=2048,
             )
-        return await self.llm.strong_chat(
+        return await self.llm.chat(
             messages=messages,
             temperature=0.2,
             max_tokens=4096,
@@ -235,9 +235,9 @@ class RAGAgent(BaseAgent):
                 source,
                 mode,
                 response.get("model", "unknown"),
-                usage.get("prompt_tokens", "?"),
-                usage.get("completion_tokens", "?"),
-                usage.get("total_tokens", "?"),
+                usage.get("prompt", "?"),
+                usage.get("completion", "?"),
+                usage.get("total", "?"),
             )
 
     # ── Thinking block extraction ─────────────────────────────────

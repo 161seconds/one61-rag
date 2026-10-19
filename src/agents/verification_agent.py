@@ -88,7 +88,7 @@ class VerificationAgent(BaseAgent):
             ),
         )
 
-        response = await self.llm.strong_chat(
+        response = await self.llm.chat(
             messages=messages,
             json_mode=True,
             temperature=0.1,

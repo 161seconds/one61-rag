@@ -103,14 +103,22 @@ class GeminiClient:
                 logger.error("Gemini API Error: %s", e)
                 raise e
 
-        # Mocking Groq format for seamless pipeline integration
+        if not answer or not answer.strip():
+            block_reason = response.prompt_feedback.block_reason if response.prompt_feedback else None
+            finish_reason = response.candidates[0].finish_reason if response.candidates else None
+            raise RuntimeError(
+                f"Gemini returned no text (block_reason={block_reason}, finish_reason={finish_reason})"
+            )
+
+        usage = response.usage_metadata
+        # Preserve the pipeline's existing response format.
         return {
             "content": answer,
             "model": target_model,
             "usage": {
-                "prompt": 0,
-                "completion": 0,
-                "total": 0,
+                "prompt": (usage.prompt_token_count or 0) if usage else 0,
+                "completion": (usage.candidates_token_count or 0) if usage else 0,
+                "total": (usage.total_token_count or 0) if usage else 0,
             },
         }
 

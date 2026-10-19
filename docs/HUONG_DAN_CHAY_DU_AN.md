@@ -206,9 +206,9 @@ print("Độ tin cậy:", data["response"]["verification"]["confidence_score"])
 
 ## Xử lý các sự cố thường gặp (Troubleshooting)
 
-### 1. Lỗi `429 RESOURCE_EXHAUSTED` (Rate limit của Gemini Free Tier)
-* **Nguyên nhân**: Tài khoản miễn phí của Google giới hạn model `gemini-3.8-flash` ở mức 5 requests / phút.
-* **Cách xử lý**: Hệ thống đã tích hợp sẵn cơ chế **Auto-Retry with Backoff**. Khi gặp mã 429, hệ thống sẽ tự động chờ khoảng 18-20 giây cho hết chu kỳ hạn mức rồi tự động gọi lại thành công mà không làm gián đoạn chương trình.
+### 1. Lỗi `429 RESOURCE_EXHAUSTED` (Giới hạn sử dụng Gemini)
+* **Nguyên nhân**: Hạn mức phụ thuộc vào project, model và usage tier; có thể giới hạn số request hoặc token theo phút, ngày. Hạn mức áp dụng cho toàn project, không riêng từng API key. Xem [tài liệu giới hạn sử dụng](https://ai.google.dev/gemini-api/docs/rate-limits) và quota thực tế trong Google AI Studio.
+* **Cách xử lý**: Client gọi tối đa 5 lần, gồm lần đầu và 4 lần thử lại. Khi lỗi API có thông tin `retry in ...s`, client chờ theo thời gian đó cộng thêm 2 giây; nếu không có, chờ 20 giây. Hết lượt thử lại, lỗi được trả về; retry không bảo đảm thành công. Giảm số request, chờ hạn mức đặt lại hoặc điều chỉnh quota phù hợp.
 
 ### 2. Lỗi `failed to connect to docker API at npipe...`
 * **Nguyên nhân**: Docker Desktop chưa được mở hoặc Docker Daemon chưa khởi động xong.
