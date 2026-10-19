@@ -1,9 +1,12 @@
 @import "tailwindcss";
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *, [data-theme=doom], [data-theme=doom] *));
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *, [data-theme=doom], [data-theme=doom] *, [data-theme=strange], [data-theme=strange] *));
 @custom-variant doom (&:where([data-theme=doom], [data-theme=doom] *));
+@custom-variant strange (&:where([data-theme=strange], [data-theme=strange] *));
 @custom-variant compact (@media (min-width: 761px) and (max-height: 850px));
 @custom-variant tablet (@media (min-width: 761px) and (max-width: 1100px));
 @custom-variant short-phone (@media (max-width: 760px) and (max-height: 750px));
+
+[data-theme=strange] { color-scheme: dark; }
 
 .assistant-markdown {
   overflow-wrap: anywhere;
@@ -19,8 +22,8 @@
   & li > :is(ul, ol) { margin-block: .25em; }
   & strong { font-weight: 650; }
   & a { text-decoration: underline; text-underline-offset: 2px; }
-  & code { @apply rounded bg-[#f3f3f3] px-1.25 py-0.5 font-mono dark:bg-[#333333] doom:bg-[#233429]; font-size: .92em; }
-  & pre { @apply rounded bg-[#f3f3f3] p-3 dark:bg-[#333333] doom:bg-[#233429]; max-width: 100%; overflow-x: auto; }
+  & code { @apply rounded bg-[#f3f3f3] px-1.25 py-0.5 font-mono dark:bg-[#333333] doom:bg-[#233429] strange:bg-[#2d2b27]; font-size: .92em; }
+  & pre { @apply rounded bg-[#f3f3f3] p-3 dark:bg-[#333333] doom:bg-[#233429] strange:bg-[#2d2b27]; max-width: 100%; overflow-x: auto; }
   & pre code { background: transparent; padding: 0; font-size: inherit; }
   & blockquote { border-left: 2px solid currentColor; padding-left: 1em; }
   & hr { border-color: currentColor; opacity: .2; }

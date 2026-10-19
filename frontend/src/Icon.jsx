@@ -1,4 +1,5 @@
 import doomMask from './dr-doom-mask.svg';
+import agamottoEye from './eye-of-agamotto.svg';
 
 const paths = {
   palette: <><path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1.5-3.3 1.5 1.5 0 0 1 1.1-2.5H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3Z"/><path d="M7 10h.01M10 6.5h.01M15 7h.01M17.5 10.5h.01"/></>,
@@ -34,6 +35,6 @@ const paths = {
 };
 
 export default function Icon({ name, size = 20, className = '', ...props }) {
-  if (name === 'doom') return <img src={doomMask} alt="" className={`inline-block shrink-0 align-middle object-contain ${className}`} width={size} height={size} aria-hidden="true" {...props} />;
+  if (name === 'doom' || name === 'strange') return <img src={name === 'doom' ? doomMask : agamottoEye} alt="" className={`inline-block shrink-0 align-middle object-contain ${className}`} width={size} height={size} aria-hidden="true" {...props} />;
   return <svg className={`inline-block shrink-0 align-middle ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>{paths[name] || paths.chat}</svg>;
 }
