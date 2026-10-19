@@ -8,6 +8,9 @@
 
 [data-theme=strange] { color-scheme: dark; }
 
+main .overflow-y-auto { scrollbar-width: none; }
+main .overflow-y-auto::-webkit-scrollbar { display: none; }
+
 .assistant-markdown {
   overflow-wrap: anywhere;
   & :is(h1, h2, h3, h4, h5, h6) { margin-block: 1.2em .5em; font-weight: 650; line-height: 1.5; }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Icon from './Icon.jsx';
 import AssistantText from './AssistantText.mjs';
 import { STORAGE_KEY, loadWorkspace, newConversation, requestChat, requestJson, validateFile } from './data.mjs';
@@ -54,6 +54,8 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarHidden, setSidebarHidden] = useState(false);
   const [pendingId, setPendingId] = useState(null);
+  const [typingId, setTypingId] = useState(null);
+  const finishTyping = useCallback(() => setTypingId(null), []);
   const [uploading, setUploading] = useState(false);
   const [uploadLabel, setUploadLabel] = useState('');
   const [health, setHealth] = useState(null);
@@ -70,7 +72,8 @@ export default function App() {
   const controller = useRef(null);
   const active = conversations.find(c => c.id === activeId) || conversations[0];
   const draft = drafts[active.id] || '';
-  const busy = Boolean(pendingId) || uploading;
+  const typing = view === 'chat' && active.messages.some(message => message.id === typingId);
+  const busy = Boolean(pendingId) || typing || uploading;
   const brandIcon = theme === 'doom' || theme === 'strange' ? theme : 'layers';
   const saved = conversations.flatMap(c => c.messages.filter(m => m.saved).map(m => ({ ...m, conversation: c })));
 
@@ -125,7 +128,7 @@ export default function App() {
   }
 
   function openView(nextView) {
-    setView(nextView); setSidebarOpen(false);
+    setTypingId(null); setView(nextView); setSidebarOpen(false);
   }
 
   function startConversation() {
@@ -157,8 +160,10 @@ export default function App() {
     const abort = new AbortController(); controller.current = abort;
     try {
       const result = await requestChat(sessionId, text, mode, history, AbortSignal.any([abort.signal, AbortSignal.timeout(180000)]));
+      const answerId = crypto.randomUUID();
+      setTypingId(answerId);
       updateConversation(sessionId, c => ({ ...c, messages: [...c.messages, {
-        id: crypto.randomUUID(), role: 'assistant', text: result.response.message,
+        id: answerId, role: 'assistant', text: result.response.message,
         citations: Array.isArray(result.citations) ? result.citations : [], verification: result.verification,
         metadata: result.metadata, suggestions: Array.isArray(result.response.suggestions) ? result.response.suggestions.filter(s => typeof s === 'string') : [],
       }] }));
@@ -206,7 +211,7 @@ export default function App() {
       {message.role === 'assistant' && <div className="flex size-7.5 shrink-0 items-center justify-center rounded-[9px] bg-[linear-gradient(140deg,#428944,#065908)] doom:bg-[linear-gradient(145deg,#d4ddd5,#718779)] strange:bg-[linear-gradient(145deg,#bc493c,#702b25)] doom:text-[#082213] strange:text-[#ffdda3] text-white max-[761px]:size-6.5 max-[761px]:rounded-[7px]"><Icon name={brandIcon} size={18} /></div>}
       <div className={message.role === 'user' ? 'min-w-0 max-w-[85%] flex-[0_1_auto] rounded-[13px_13px_3px_13px] border border-[#eaeaea] bg-[#f1f1f1] px-4.25 py-3 dark:border-[#4b4b4b] dark:bg-[#363636] doom:bg-[#293c2f] strange:bg-[#302a25] max-[761px]:max-w-[92%]' : 'min-w-0 flex-1'}>
         {message.role === 'assistant' && <div className="mb-2.25 pt-0.5 text-[11px] font-[650]">One61 <span className="ml-1.5 text-[8px] font-normal text-[#868686] dark:text-[#929292] doom:text-[#8ca592] strange:text-[#a39a8b]">Trợ lý AI</span></div>}
-        <div className={message.error ? 'rounded-md bg-[#b275640a] px-3 py-2.5 text-[#b27564]' : ''}>{message.role === 'assistant' ? <AssistantText text={message.text} /> : <div className="whitespace-pre-wrap wrap-anywhere">{message.text}</div>}</div>
+        <div className={message.error ? 'rounded-md bg-[#b275640a] px-3 py-2.5 text-[#b27564]' : ''}>{message.role === 'assistant' ? <AssistantText text={message.text} animate={view === 'chat' && typingId === message.id && !message.error} onComplete={finishTyping} /> : <div className="whitespace-pre-wrap wrap-anywhere">{message.text}</div>}</div>
         {message.verification && <div className={`mt-3.25 flex flex-wrap items-center gap-1.25 text-[9px] ${message.verification.is_verified ? 'text-[#659b87]' : 'text-[#b99255]'}`}>
           <Icon name="shield" size={14} /> {message.verification.is_verified ? 'Đã đối chiếu nguồn' : 'Cần kiểm tra thêm'}
           {Number.isFinite(message.verification.confidence_score) && <span className="text-[#868686] dark:text-[#929292] doom:text-[#8ca592] strange:text-[#a39a8b]">· {Math.round(message.verification.confidence_score * 100)}% tin cậy</span>}
@@ -275,7 +280,7 @@ export default function App() {
               {uploading && <div className="mb-2.25 flex items-center gap-2 text-[10px] text-[#7a7a7a] dark:text-[#ababab] doom:text-[#a9bcad] strange:text-[#bfb7a8]" role="status"><span className={spinner} />{uploadLabel}</div>}
               <form className="rounded-xl border border-[#e6e6e6] bg-white px-4 pt-3.5 pb-2.75 shadow-[0_3px_10px_#4e4e4e05] transition focus-within:border-[#c6c6c6] focus-within:shadow-[0_0_0_3px_#a8a8a80a,0_3px_12px_#4e4e4e06] dark:border-[#3b3b3b] doom:border-[#314337] strange:border-[#403b33] dark:bg-[#262626] doom:bg-[#17251c] strange:bg-[#20231f] max-[761px]:rounded-[10px] max-[761px]:px-3 max-[761px]:pt-3 max-[761px]:pb-2.25" onSubmit={send}>
                 <textarea className="block max-h-35 min-h-9 w-full field-sizing-content resize-none border-0 bg-transparent px-px pt-0.5 pb-2.25 text-[11px] leading-[1.8] placeholder:text-[#868686] focus-visible:outline-none dark:placeholder:text-[#929292] doom:placeholder:text-[#8ca592] strange:placeholder:text-[#a39a8b] max-[761px]:min-h-9.75 max-[761px]:text-xs" ref={textarea} value={draft} onChange={e => setDrafts(current => ({ ...current, [active.id]: e.target.value }))} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); } }} placeholder="Hỏi bất cứ điều gì về dữ liệu của bạn…" aria-label="Câu hỏi cho One61" maxLength={12000} rows={1} />
-                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><button type="button" className={`${iconButton} -ml-1`} title="Đính kèm tài liệu" aria-label="Đính kèm tài liệu" disabled={busy} onClick={() => fileInput.current?.click()}><Icon name="plus" size={20} /></button><span className="mx-0.5 h-3.25 w-px bg-[#ededed] dark:bg-[#3b3b3b]" /><label className="flex items-center gap-1.5 rounded-md bg-[#f8f8f8] px-2 py-1.5 text-[#969696] dark:bg-[#333333] doom:bg-[#233429] strange:bg-[#2d2b27]"><Icon name="sparkles" size={14} /><select className="max-w-32 cursor-pointer border-0 bg-transparent pr-0.5 text-[9px] text-[#888888] dark:text-[#bdbdbd] [&>option]:bg-white [&>option]:text-[#353535] dark:[&>option]:bg-[#2b2b2b] dark:[&>option]:text-[#e7e7e7]" aria-label="Chế độ trả lời" value={mode} onChange={e => setMode(e.target.value)} disabled={busy}><option value="fast">Trả lời nhanh</option><option value="reasoning">Phân tích sâu</option></select></label></div><div className="flex items-center gap-2"><span className="mr-1.25 text-[8px] text-[#aeaeae] max-[761px]:hidden">↵ để gửi</span>{pendingId ? <button type="button" className="flex size-7.75 items-center justify-center rounded-lg bg-[linear-gradient(145deg,#247326,#065908)] doom:bg-[linear-gradient(145deg,#408a47,#245f30)] strange:bg-[linear-gradient(145deg,#bc463c,#702b25)] text-white shadow-sm hover:-translate-y-px" aria-label="Dừng trả lời" title="Dừng trả lời" onClick={() => controller.current?.abort()}><Icon name="stop" size={18} /></button> : <button type="submit" className="flex size-7.75 items-center justify-center rounded-lg bg-[linear-gradient(145deg,#247326,#065908)] doom:bg-[linear-gradient(145deg,#408a47,#245f30)] strange:bg-[linear-gradient(145deg,#bc463c,#702b25)] text-white shadow-[0_2px_4px_#06590821] enabled:hover:-translate-y-px enabled:hover:shadow-[0_3px_8px_#06590835] disabled:cursor-not-allowed disabled:bg-[#aec5aa] disabled:bg-none disabled:shadow-none dark:disabled:bg-[#3b513c] strange:disabled:bg-[#40352e] dark:disabled:text-[#a5bca1] strange:disabled:text-[#c5b3a0]" aria-label="Gửi câu hỏi" title="Gửi câu hỏi" disabled={!draft.trim() || uploading}><Icon name="up" size={20} /></button>}</div></div>
+                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><button type="button" className={`${iconButton} -ml-1`} title="Đính kèm tài liệu" aria-label="Đính kèm tài liệu" disabled={busy} onClick={() => fileInput.current?.click()}><Icon name="plus" size={20} /></button><span className="mx-0.5 h-3.25 w-px bg-[#ededed] dark:bg-[#3b3b3b]" /><label className="flex items-center gap-1.5 rounded-md bg-[#f8f8f8] px-2 py-1.5 text-[#969696] dark:bg-[#333333] doom:bg-[#233429] strange:bg-[#2d2b27]"><Icon name="sparkles" size={14} /><select className="max-w-32 cursor-pointer border-0 bg-transparent pr-0.5 text-[9px] text-[#888888] dark:text-[#bdbdbd] [&>option]:bg-white [&>option]:text-[#353535] dark:[&>option]:bg-[#2b2b2b] dark:[&>option]:text-[#e7e7e7]" aria-label="Chế độ trả lời" value={mode} onChange={e => setMode(e.target.value)} disabled={busy}><option value="fast">Trả lời nhanh</option><option value="reasoning">Phân tích sâu</option></select></label></div><div className="flex items-center gap-2"><span className="mr-1.25 text-[8px] text-[#aeaeae] max-[761px]:hidden">↵ để gửi</span>{pendingId || typing ? <button type="button" className="flex size-7.75 items-center justify-center rounded-lg bg-[linear-gradient(145deg,#247326,#065908)] doom:bg-[linear-gradient(145deg,#408a47,#245f30)] strange:bg-[linear-gradient(145deg,#bc463c,#702b25)] text-white shadow-sm hover:-translate-y-px" aria-label="Dừng trả lời" title="Dừng trả lời" onClick={() => pendingId ? controller.current?.abort() : finishTyping()}><Icon name="stop" size={18} /></button> : <button type="submit" className="flex size-7.75 items-center justify-center rounded-lg bg-[linear-gradient(145deg,#247326,#065908)] doom:bg-[linear-gradient(145deg,#408a47,#245f30)] strange:bg-[linear-gradient(145deg,#bc463c,#702b25)] text-white shadow-[0_2px_4px_#06590821] enabled:hover:-translate-y-px enabled:hover:shadow-[0_3px_8px_#06590835] disabled:cursor-not-allowed disabled:bg-[#aec5aa] disabled:bg-none disabled:shadow-none dark:disabled:bg-[#3b513c] strange:disabled:bg-[#40352e] dark:disabled:text-[#a5bca1] strange:disabled:text-[#c5b3a0]" aria-label="Gửi câu hỏi" title="Gửi câu hỏi" disabled={!draft.trim() || busy}><Icon name="up" size={20} /></button>}</div></div>
               </form>
               <div className="mx-0.5 mt-2.75 flex justify-between gap-2 text-[7px] text-[#aeaeae] max-[761px]:justify-center max-[761px]:leading-normal"><span className="whitespace-nowrap max-[761px]:hidden"><i className="mr-1 text-[10px] text-[#a5a5a5] not-italic">✦</i> Được hỗ trợ bởi One61 AI</span><span>AI có thể mắc lỗi. Hãy kiểm tra thông tin quan trọng.</span></div>
             </div>
