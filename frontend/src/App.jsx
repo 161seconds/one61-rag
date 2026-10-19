@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Icon from './Icon.jsx';
+import AssistantText from './AssistantText.mjs';
 import { STORAGE_KEY, loadWorkspace, newConversation, requestChat, requestJson, validateFile } from './data.mjs';
 
 const prompts = [
@@ -34,13 +35,6 @@ function ThemeOptions({ theme, onChange }) {
   return <div className="flex flex-col gap-1" role="group" aria-label="Lựa chọn giao diện">{themes.map(item => <button type="button" key={item.id} aria-pressed={theme === item.id} onClick={() => onChange(item.id)} className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left hover:bg-[#f3f3f3] aria-pressed:bg-[#e7f2e8] aria-pressed:text-[#065908] dark:hover:bg-[#333333] dark:aria-pressed:bg-[#2d4030] dark:aria-pressed:text-[#b4d9ae] doom:hover:bg-[#233429] doom:aria-pressed:bg-[#2b4933] doom:aria-pressed:text-[#d4e8d0]">
     <Icon name={item.icon} size={20} /><span className="min-w-0 flex-1"><strong className="block text-[13px] font-semibold">{item.label}</strong><span className="mt-0.5 block text-[11px] leading-normal text-[#777777] dark:text-[#ababab] doom:text-[#a9bcad]">{item.description}</span></span>{theme === item.id && <Icon name="check" size={18} />}
   </button>)}</div>;
-}
-
-function AssistantText({ text }) {
-  // ponytail: plain text + bold/code only; add a Markdown parser when tables are required.
-  return <div className="whitespace-pre-wrap [overflow-wrap:anywhere]">{text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((part, i) => part.startsWith('**')
-    ? <strong className="font-[650]" key={i}>{part.slice(2, -2)}</strong> : part.startsWith('`')
-      ? <code className="rounded bg-[#f3f3f3] px-[5px] py-0.5 font-mono text-[11px] dark:bg-[#333333] doom:bg-[#233429]" key={i}>{part.slice(1, -1)}</code> : part)}</div>;
 }
 
 export default function App() {
@@ -211,14 +205,14 @@ export default function App() {
       {message.role === 'assistant' && <div className="flex size-[30px] shrink-0 items-center justify-center rounded-[9px] bg-[linear-gradient(140deg,#428944,#065908)] doom:bg-[linear-gradient(145deg,#d4ddd5,#718779)] doom:text-[#082213] text-white max-[761px]:size-[26px] max-[761px]:rounded-[7px]"><Icon name={brandIcon} size={18} /></div>}
       <div className={message.role === 'user' ? 'min-w-0 max-w-[85%] flex-[0_1_auto] rounded-[13px_13px_3px_13px] border border-[#eaeaea] bg-[#f1f1f1] px-[17px] py-3 dark:border-[#4b4b4b] dark:bg-[#363636] doom:bg-[#293c2f] max-[761px]:max-w-[92%]' : 'min-w-0 flex-1'}>
         {message.role === 'assistant' && <div className="mb-[9px] pt-0.5 text-[11px] font-[650]">One61 <span className="ml-1.5 text-[8px] font-normal text-[#868686] dark:text-[#929292] doom:text-[#8ca592]">Trợ lý AI</span></div>}
-        <div className={message.error ? 'rounded-md bg-[#b275640a] px-3 py-2.5 text-[#b27564]' : ''}><AssistantText text={message.text} /></div>
+        <div className={message.error ? 'rounded-md bg-[#b275640a] px-3 py-2.5 text-[#b27564]' : ''}>{message.role === 'assistant' ? <AssistantText text={message.text} /> : <div className="whitespace-pre-wrap [overflow-wrap:anywhere]">{message.text}</div>}</div>
         {message.verification && <div className={`mt-[13px] flex flex-wrap items-center gap-[5px] text-[9px] ${message.verification.is_verified ? 'text-[#659b87]' : 'text-[#b99255]'}`}>
           <Icon name="shield" size={14} /> {message.verification.is_verified ? 'Đã đối chiếu nguồn' : 'Cần kiểm tra thêm'}
           {Number.isFinite(message.verification.confidence_score) && <span className="text-[#868686] dark:text-[#929292] doom:text-[#8ca592]">· {Math.round(message.verification.confidence_score * 100)}% tin cậy</span>}
         </div>}
         {message.verification?.disclaimer && <p className="mt-2 rounded-[5px] bg-[#a9844d0a] px-2.5 py-2 text-[10px] text-[#a4814d]">{message.verification.disclaimer}</p>}
         {message.citations?.length > 0 && <details className="mt-3 rounded-md bg-[#f3f3f3] px-3 py-2 text-[10px] text-[#7a7a7a] dark:bg-[#333333] doom:bg-[#233429] dark:text-[#ababab] doom:text-[#a9bcad]"><summary className="cursor-pointer"><Icon name="file" size={14} className="mr-1" /> {message.citations.length} nguồn tham khảo</summary>
-          {message.citations.map((citation, index) => <div key={index} className="mt-2.5 border-t border-[#ededed] pt-2.5 [overflow-wrap:anywhere] dark:border-[#3b3b3b] doom:border-[#314337]"><strong>{citation.source_name || citation.source_id || `Nguồn ${index + 1}`}</strong><p className="whitespace-pre-wrap text-[10px]">{citation.chunk_text}</p></div>)}
+          {message.citations.map((citation, index) => <div key={index} className="mt-2.5 border-t border-[#ededed] pt-2.5 [overflow-wrap:anywhere] dark:border-[#3b3b3b] doom:border-[#314337]"><strong>{citation.source_name || citation.source_id || `Nguồn ${index + 1}`}</strong><AssistantText text={citation.chunk_text} /></div>)}
         </details>}
         {message.role === 'assistant' && !message.error && <div className="mt-2.5 flex items-center gap-[3px]">
           <button className="flex items-center rounded-[5px] p-[5px] text-[#868686] hover:bg-[#f3f3f3] dark:text-[#929292] doom:text-[#8ca592] dark:hover:bg-[#333333] doom:hover:bg-[#233429]" title="Sao chép" aria-label="Sao chép câu trả lời" onClick={() => copy(message.text)}><Icon name="copy" size={15} /></button>
